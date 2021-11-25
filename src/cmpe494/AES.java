@@ -2,7 +2,7 @@ package cmpe494;
 import java.io.File;  // Import the File class
 import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
-import java.util.HexFormat;
+
 
 public class AES {
 	public static final int[] sbox = {
@@ -56,26 +56,40 @@ public class AES {
 		0x21, 0x0c, 0x7d};
 	public static void main(String args []) {
 		int [][] matState= new int[4][4];
-		byte bb=70;
+		boolean dec=false;
 		try {
-			File myObj = new File("input.txt");
+			File myObj = new File("cmpe494-assignment1/src/cmpe494/input.txt");
 			Scanner myReader = new Scanner(myObj);
 			while (myReader.hasNextLine()) {
 			  String data = myReader.nextLine();
 			  for(int i=0;i<4;i++){
 				for(int j=0;j<4;j++){
-					int start=4*i+j;
+					int start=2*(4*i+j);
 					String hex=data.substring(start, start+2);
 					int decimal=Integer.parseInt(hex,16);
 				  matState[i][j]=decimal;
 				}
 			  }
-			  System.out.println(matState);
+			  for(int i=0;i<4;i++){
+				for(int j=0;j<4;j++){
+					System.out.print(Integer.toHexString(matState[i][j])+" ");
+				}
+				System.out.println();
+			  }
+			  matState=subBytes(matState, dec);
 			}
 			myReader.close();
 		  } catch (FileNotFoundException e) {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
+		  }
+		  
+		  System.out.println("-----------");
+		  for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				System.out.print(Integer.toHexString(matState[i][j])+" ");
+			}
+			System.out.println();
 		  }
 		//System.out.println(Integer.toHexString(90)+" "+Integer.toHexString(sbox[90]));
 	}
@@ -89,7 +103,11 @@ public class AES {
 				state[i][j]=sbox[state[i][j]];
 			}}
 		}
-	
 		return state;
+	}
+	private static String encipher(int[][]state){
+		
+
+		return "";
 	}
 }
