@@ -1,9 +1,10 @@
+
 import java.io.File;  // Import the File class
 import java.io.FileNotFoundException;  // Import this class to handle errors
 import java.util.Scanner; // Import the Scanner class to read text files
+import java.util.Arrays;
 
 public class AES {
-
 	public static final int[] sbox = {
 		0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67,
 		0x2b, 0xfe, 0xd7, 0xab, 0x76, 0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59,
@@ -53,11 +54,17 @@ public class AES {
 		0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61, 0x17, 0x2b,
 		0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55,
 		0x21, 0x0c, 0x7d};
-	public static void main(String args []) {
+	public static void main(String [] args) {
 		int [][] matState= new int[4][4];
 		boolean dec=false;
 		try {
-			File myObj = new File("cmpe494-assignment1/src/cmpe494/input.txt");
+			String option=args[0];
+			if(option.equals("d")){
+				dec=true;
+			}
+			String keyFile=args[1];
+			String inputFile=args[2];
+			File myObj = new File(inputFile);
 			Scanner myReader = new Scanner(myObj);
 			while (myReader.hasNextLine()) {
 			  String data = myReader.nextLine();
@@ -75,7 +82,26 @@ public class AES {
 				}
 				System.out.println();
 			  }
+
 			  matState=subBytes(matState, dec);
+			  System.out.println("subBytes operation:");
+			  for(int i=0;i<4;i++){
+					for(int j=0;j<4;j++){
+						System.out.print(Integer.toHexString(matState[i][j])+" ");
+					}
+					System.out.println();
+				  }
+			  System.out.println();
+			  matState=shiftRows(matState,dec);
+			  System.out.println("shiftRows operation:");
+			  
+			  for(int i=0;i<4;i++){
+					for(int j=0;j<4;j++){
+						System.out.print(Integer.toHexString(matState[i][j])+" ");
+					}
+					System.out.println();
+				  }
+				System.out.println();
 			}
 			myReader.close();
 		  } catch (FileNotFoundException e) {
@@ -108,5 +134,50 @@ public class AES {
 		
 
 		return "";
+	}
+
+	private static int[][] shiftRows(int[][] state,boolean dec){
+		if(!dec) {
+		//Second row shift
+		int temp[]=new int[4];
+		for(int i=0;i<4;i++){
+			temp[(i-1+4)%4]=state[1][i];
+		}
+		state[1]=temp.clone();
+
+		//Third row shift
+		for(int i=0;i<4;i++){
+			temp[(i-2+4)%4]=state[2][i];
+		}
+		state[2]=temp.clone();
+
+		//Fourth row shift
+		for(int i=0;i<4;i++){
+			temp[(i-3+4)%4]=state[3][i];
+		}
+		state[3]=temp.clone();
+		
+		return state;
+	}else {
+		int temp[]=new int[4];
+
+		// Second row shift
+		for(int i=0;i<4;i++){
+			temp[(i+1)%4]=state[1][i];
+		}
+		state[1]=temp.clone();
+
+		//Third row shift
+		for(int i=0;i<4;i++){
+			temp[(i+2)%4]=state[2][i];
+		}
+		state[2]=temp.clone();
+		//Fourth row shift
+		for(int i=0;i<4;i++){
+			temp[(i+3)%4]=state[3][i];
+		}
+		state[3]=temp.clone();
+		return state;
+	}
 	}
 }
