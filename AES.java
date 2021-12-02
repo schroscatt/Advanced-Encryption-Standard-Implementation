@@ -76,32 +76,16 @@ public class AES {
 				  matState[i][j]=decimal;
 				}
 			  }
-			  for(int i=0;i<4;i++){
-				for(int j=0;j<4;j++){
-					System.out.print(Integer.toHexString(matState[i][j])+" ");
-				}
-				System.out.println();
-			  }
+			  printFunc(matState);
 
 			  matState=subBytes(matState, dec);
 			  System.out.println("subBytes operation:");
-			  for(int i=0;i<4;i++){
-					for(int j=0;j<4;j++){
-						System.out.print(Integer.toHexString(matState[i][j])+" ");
-					}
-					System.out.println();
-				  }
-			  System.out.println();
+			  printFunc(matState);
+
 			  matState=shiftRows(matState,dec);
 			  System.out.println("shiftRows operation:");
-			  
-			  for(int i=0;i<4;i++){
-					for(int j=0;j<4;j++){
-						System.out.print(Integer.toHexString(matState[i][j])+" ");
-					}
-					System.out.println();
-				  }
-				System.out.println();
+			  printFunc(matState);
+
 			}
 			myReader.close();
 		  } catch (FileNotFoundException e) {
@@ -110,12 +94,7 @@ public class AES {
 		  }
 		  
 		  System.out.println("-----------");
-		  for(int i=0;i<4;i++){
-			for(int j=0;j<4;j++){
-				System.out.print(Integer.toHexString(matState[i][j])+" ");
-			}
-			System.out.println();
-		  }
+		  printFunc(matState);
 		//System.out.println(Integer.toHexString(90)+" "+Integer.toHexString(sbox[90]));
 	}
 	private static int[][] subBytes(int[][] state,boolean dec){
@@ -179,5 +158,24 @@ public class AES {
 		state[3]=temp.clone();
 		return state;
 	}
+	}
+
+	private static int[][] addRoundKey(int[][] state, int[][] key){
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				state[i][j]=state[i][j] ^ key[i][j];
+			}
+		}
+		return state;
+	}
+
+	private static void printFunc(int[][] matState){
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				System.out.print(Integer.toHexString(matState[i][j])+" ");
+			}
+			System.out.println();
+		  }
+		System.out.println();
 	}
 }
