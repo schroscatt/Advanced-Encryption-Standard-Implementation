@@ -195,7 +195,6 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 			}
 			return temp;
 		}else{
-			System.out.println("here");
 			for(int invMixRow=0;invMixRow<4;invMixRow++){
 				for(int stateCol=0;stateCol<4;stateCol++){
 					for(int cell=0;cell<4;cell++){
