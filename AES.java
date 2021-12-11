@@ -150,17 +150,6 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 				}
 			  }
 			  printFunc(matState);
-			  int tempState[][]={{0xdb,0xf2,0x01,0xc6}, {0x13,0x0a,0x01,0xc6},{0x53,0x22,0x01,0xc6},{0x45,0x5c,0x01,0xc6}};
-			  System.out.println("print tempState");
-			  printFunc(tempState);
-
-			tempState=mixColumns(tempState,dec);
-			System.out.println("mixColumns encryption:");
-			printFunc(tempState);
-
-			matState=mixColumns(tempState,!dec);
-			System.out.println("mix column decryption");
-			printFunc(matState);
 
 			  matState=subBytes(matState, dec);
 			  System.out.println("subBytes operation:");
@@ -169,6 +158,10 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 			  matState=shiftRows(matState,dec);
 			  System.out.println("shiftRows operation:");
 			  printFunc(matState);
+
+			  matState=mixColumns(matState,dec);
+			System.out.println("mixColumns encryption:");
+			printFunc(matState);
 
 			}
 			myReader.close();
@@ -206,32 +199,7 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 			for(int invMixRow=0;invMixRow<4;invMixRow++){
 				for(int stateCol=0;stateCol<4;stateCol++){
 					for(int cell=0;cell<4;cell++){
-						/*if(invMixColumnMatrix[invMixRow][cell]==9){
-							temp[invMixRow][stateCol]^=multiplyBy2(multiplyBy2(multiplyBy2(state[cell][stateCol])));
-							temp[invMixRow][stateCol]^=state[cell][stateCol];
-							//System.out.println("multiply by 9, the num is:"+state[cell][stateCol]+" result is:"+temp[invMixRow][stateCol]);
-						}else if(invMixColumnMatrix[invMixRow][cell]==11){
-							temp[invMixRow][stateCol]^=multiplyBy2(multiplyBy2(state[cell][stateCol]));
-							temp[invMixRow][stateCol]^=state[cell][stateCol];
-							temp[invMixRow][stateCol]^=multiplyBy2(temp[invMixRow][stateCol]);
-							temp[invMixRow][stateCol]^=state[cell][stateCol];
-							//System.out.println("multiply by 11, the num is:"+state[cell][stateCol]+" result is:"+temp[invMixRow][stateCol]);
 						
-						}else if(invMixColumnMatrix[invMixRow][cell]==13){
-							temp[invMixRow][stateCol]^=multiplyBy2(state[cell][stateCol]);
-							temp[invMixRow][stateCol]^=state[cell][stateCol];
-							temp[invMixRow][stateCol]^=multiplyBy2(multiplyBy2(temp[invMixRow][stateCol]));
-							temp[invMixRow][stateCol]^=state[cell][stateCol];
-							//System.out.println("multiply by 13, the num is:"+state[cell][stateCol]+" result is:"+temp[invMixRow][stateCol]);
-						
-						}else{ // invMixColumnMatrix[invMixRow][cell]==14
-						
-							temp[invMixRow][stateCol]^=multiplyBy2(state[cell][stateCol]);
-							temp[invMixRow][stateCol]^=state[cell][stateCol];
-							temp[invMixRow][stateCol]^=multiplyBy2(temp[invMixRow][stateCol]);
-							temp[invMixRow][stateCol]^=state[cell][stateCol];
-							temp[invMixRow][stateCol]^=multiplyBy2(temp[invMixRow][stateCol]);
-						}*/
 						if(invMixColumnMatrix[invMixRow][cell]==9){
 							temp[invMixRow][stateCol]^=multiplyBy9[state[cell][stateCol]];
 						}else if(invMixColumnMatrix[invMixRow][cell]==11){
