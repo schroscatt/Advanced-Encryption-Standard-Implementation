@@ -127,8 +127,13 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 0x37,0x39,0x2b,0x25,0x0f,0x01,0x13,0x1d,0x47,0x49,0x5b,0x55,0x7f,0x71,0x63,0x6d,
 0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d};
 
+public static int [][] roundKeys = new int[44][4];
+
+public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36};
+
 	public static void main(String [] args) {
 		int [][] matState= new int[4][4];
+		int [][] key = new int[4][4];
 		boolean dec=false;
 		try {
 			String option=args[0];
@@ -138,7 +143,10 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 			String keyFile=args[1];
 			String inputFile=args[2];
 			File myObj = new File(inputFile);
+			File keyObj = new File(keyFile);
 			Scanner myReader = new Scanner(myObj);
+			Scanner keyReader = new Scanner(keyObj);
+			String keyData = keyReader.nextLine();
 			while (myReader.hasNextLine()) {
 			  String data = myReader.nextLine();
 			  for(int i=0;i<4;i++){
@@ -146,23 +154,42 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 					int start=2*(4*i+j);
 					String hex=data.substring(start, start+2);
 					int decimal=Integer.parseInt(hex,16);
-				  matState[i][j]=decimal;
+					matState[j][i]=decimal;
+
+					String keyHex=keyData.substring(start, start+2);
+					int keyDecimal=Integer.parseInt(keyHex,16);
+					key[j][i] = keyDecimal;
 				}
 			  }
-			  printFunc(matState);
+			  keyExpansion(key);
+				System.out.println("roundKeys:");
+				printFunc(roundKeys, 44, 4);
+				System.out.println("-------------*:");
+				printFunc(matState, 4, 4);
 
-			  matState=subBytes(matState, dec);
-			  System.out.println("subBytes operation:");
-			  printFunc(matState);
+				System.out.println("addRoundKey operation:");
+				matState = addRoundKey(matState, 0);          // returns {10, 20}
+				printFunc(matState, 4, 4);
 
-			  matState=shiftRows(matState,dec);
-			  System.out.println("shiftRows operation:");
-			  printFunc(matState);
+			  for(int i=0; i<10; i++){
+				  System.out.println("subBytes operation:");
+				  matState=subBytes(matState, dec);
+				  printFunc(matState, 4, 4);
 
-			  matState=mixColumns(matState,dec);
-			System.out.println("mixColumns encryption:");
-			printFunc(matState);
+				  System.out.println("shiftRows operation:");
+				  matState=shiftRows(matState,dec);
+				  printFunc(matState, 4, 4);
 
+				  if(i!=9) {
+					  System.out.println("mixColumns encryption:");
+					  matState = mixColumns(matState, dec);
+					  printFunc(matState, 4, 4);
+				  }
+
+				  System.out.println("addRound encryption :");
+				  matState =addRoundKey(matState, i+1);
+				  printFunc(matState, 4, 4);
+			  }
 			}
 			myReader.close();
 		  } catch (FileNotFoundException e) {
@@ -171,8 +198,69 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 		  }
 		  
 		  System.out.println("-----------");
-		  printFunc(matState);
+		printFunc(matState, 4, 4);
 		//System.out.println(Integer.toHexString(90)+" "+Integer.toHexString(sbox[90]));
+	}
+
+	private static int [] rotWord(int [] word){
+		int [] newList = new int[4];
+		newList[3] = word[0];
+		System.out.println("rotWord operation:");
+
+		for(int i=0; i<word.length-1;i++){
+			newList[i] = word[i+1];
+			System.out.print(Integer.toHexString(newList[i])+" ");
+
+		}
+
+		System.out.println();
+
+		return newList;
+	}
+
+	private static int [] subWord(int [] word){
+		System.out.println("subWord operation:");
+
+		for(int i=0; i<word.length;i++){
+			word[i] = sbox[word[i]];
+			System.out.print(Integer.toHexString(word[i])+" ");
+
+		}
+		System.out.println();
+
+		return word;
+	}
+
+	private static void keyExpansion(int[][] key){
+		for(int i=0; i<4; i++){
+			roundKeys[i] = getColumn(key, i);
+
+		}
+		for(int i=0;i<4*(11);i++){
+			if(i<4){
+				roundKeys[i] = getColumn(key, i);
+			}
+			else if(i>=4 && i%4==0){
+				int [] temp = subWord(rotWord(roundKeys[i-1]));
+				for(int j=0; j<4; j++) {
+					temp[j] = temp[j]^roundKeys[i - 4][j];
+				}
+				temp[0] = temp[0]^rconst[(i-4)/4];
+				roundKeys[i] = temp;
+			}
+			else{
+				for(int j=0; j<4; j++){
+					roundKeys[i][j] = roundKeys[i-4][j] ^ roundKeys[i-1][j];
+				}
+			}
+		}
+	}
+	private static int[] getColumn(int[][] matrix, int column){
+		int[] col = new int[4];
+		for(int row = 0; row < matrix.length; row++) {
+			col[row] = matrix[row][column];
+			}
+		return col;
 	}
 	private static int [][] mixColumns(int [][]state,boolean dec){
 		int temp[][]=new int[4][4];
@@ -239,7 +327,7 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 	private static String encipher(int[][]state){
 		
 
-		return "";
+		return "l";
 	}
 
 	private static int[][] shiftRows(int[][] state,boolean dec){
@@ -287,21 +375,35 @@ public static final int [] multiplyBy14={0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a
 	}
 	}
 
-	private static int[][] addRoundKey(int[][] state, int[][] key){
+	private static int[][] addRoundKey(int[][] state, int index){
+		int [][] roundKey = getRoundKeyMatrix(index);
 		for(int i=0;i<4;i++){
 			for(int j=0;j<4;j++){
-				state[i][j]=state[i][j] ^ key[i][j];
+				System.out.print(Integer.toHexString(roundKey[i][j])+" ");
+				state[i][j]=state[i][j] ^ roundKey[i][j];
 			}
+			System.out.println();
 		}
 		return state;
 	}
+	private static int[][] getRoundKeyMatrix(int index){
+		int[][] temp = new int[4][4];
+		for(int i=0; i<4;i++){
+			int ind = index*4+i;
+			for(int j=0; j<4; j++){
+				temp[j][i] = roundKeys[ind][j];
+			}
+		}
+		return temp;
+	}
 
-	private static void printFunc(int[][] matState){
-		for(int i=0;i<4;i++){
-			for(int j=0;j<4;j++){
+	private static void printFunc(int[][] matState, int row, int col){
+		for(int i=0;i<row;i++){
+			for(int j=0;j<col;j++){
 				System.out.print(Integer.toHexString(matState[i][j])+" ");
 			}
-			System.out.println();
+				System.out.println();
+
 		  }
 		System.out.println();
 	}
