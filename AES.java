@@ -161,36 +161,8 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 					key[j][i] = keyDecimal;
 				}
 			  }
-			  keyExpansion(key);
-				System.out.println("roundKeys:");
-				printFunc(roundKeys, 44, 4);
-				System.out.println("-------------*:");
-				printFunc(matState, 4, 4);
-
-				System.out.println("addRoundKey operation:");
-				matState = addRoundKey(matState, 0);          // returns {10, 20}
-				printFunc(matState, 4, 4);
-
-			  for(int i=0; i<10; i++){
-				  System.out.println("subBytes operation:");
-				  matState=subBytes(matState, dec);
-				  printFunc(matState, 4, 4);
-
-				  System.out.println("shiftRows operation:");
-				  matState=shiftRows(matState,dec);
-				  printFunc(matState, 4, 4);
-
-				  if(i!=9) {
-					  System.out.println("mixColumns encryption:");
-					  matState = mixColumns(matState, dec);
-					  printFunc(matState, 4, 4);
-				  }
-
-				  System.out.println("addRound encryption :");
-				  matState =addRoundKey(matState, i+1);
-				  printFunc(matState, 4, 4);
-			  }
 			}
+			matState = encipher(matState, key, dec);
 			myReader.close();
 		  } catch (FileNotFoundException e) {
 			System.out.println("An error occurred.");
@@ -210,7 +182,6 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 		for(int i=0; i<word.length-1;i++){
 			newList[i] = word[i+1];
 			System.out.print(Integer.toHexString(newList[i])+" ");
-
 		}
 
 		System.out.println();
@@ -324,10 +295,38 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 		}
 		return state;
 	}
-	private static String encipher(int[][]state){
-		
+	private static int[][] encipher(int[][] matState, int[][] key, boolean dec){
+		keyExpansion(key);
+		System.out.println("roundKeys:");
+		printFunc(roundKeys, 44, 4);
+		System.out.println("-------------*:");
+		printFunc(matState, 4, 4);
 
-		return "l";
+		System.out.println("addRoundKey operation:");
+		matState = addRoundKey(matState, 0);          // returns {10, 20}
+		printFunc(matState, 4, 4);
+
+		for(int i=0; i<10; i++){
+			System.out.println("subBytes operation:");
+			matState=subBytes(matState, dec);
+			printFunc(matState, 4, 4);
+
+			System.out.println("shiftRows operation:");
+			matState=shiftRows(matState,dec);
+			printFunc(matState, 4, 4);
+
+			if(i!=9) {
+				System.out.println("mixColumns encryption:");
+				matState = mixColumns(matState, dec);
+				printFunc(matState, 4, 4);
+			}
+
+			System.out.println("addRound encryption :");
+			matState =addRoundKey(matState, i+1);
+			printFunc(matState, 4, 4);
+		}
+
+		return matState;
 	}
 
 	private static int[][] shiftRows(int[][] state,boolean dec){
