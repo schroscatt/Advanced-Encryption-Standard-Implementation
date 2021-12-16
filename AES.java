@@ -1,9 +1,6 @@
 
-import java.io.File;  // Import the File class
-import java.io.FileNotFoundException;  // Import this class to handle errors
-import java.util.Scanner; // Import the Scanner class to read text files
-import java.util.Arrays;
-
+import java.io.*;
+import java.util.*;
 public class AES {
 	public static final int[] sbox = {
 		0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67,
@@ -135,18 +132,45 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 		int [][] matState= new int[4][4];
 		int [][] key = new int[4][4];
 		boolean dec=false;
+		String keyFile=args[1];
+		String inputFile=args[2];
+		String ext = "";
+		BufferedWriter writer = null;
+
+		String option=args[0];
+		if(option.equals("d")){
+			dec=true;
+		}
 		try {
-			String option=args[0];
-			if(option.equals("d")){
-				dec=true;
+			ext = dec ? ".dec" : ".enc";
+			File file = new File(inputFile+ext);
+			if (file.createNewFile()) {
+				System.out.println("File created: " + file.getName());
+			} else {
+				System.out.println("File already exists.");
 			}
-			String keyFile=args[1];
-			String inputFile=args[2];
+			writer = new BufferedWriter(new FileWriter(inputFile+ext));
+		} catch (IOException e) {
+			System.out.println("An error occurred.");
+		}
+
+		try {
 			File myObj = new File(inputFile);
 			File keyObj = new File(keyFile);
 			Scanner myReader = new Scanner(myObj);
 			Scanner keyReader = new Scanner(keyObj);
 			String keyData = keyReader.nextLine();
+			for(int i=0;i<4;i++){
+				for(int j=0;j<4;j++){
+					int start=2*(4*i+j);
+					String keyHex=keyData.substring(start, start+2);
+					int keyDecimal=Integer.parseInt(keyHex,16);
+					key[j][i]=keyDecimal;
+				}
+			}
+			keyExpansion(key);
+			System.out.println("roundKeys:");
+			printFunc(roundKeys, 44, 4);
 			while (myReader.hasNextLine()) {
 			  String data = myReader.nextLine();
 			  data=data.trim();
@@ -156,22 +180,28 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 					String hex=data.substring(start, start+2);
 					int decimal=Integer.parseInt(hex,16);
 					matState[j][i]=decimal;
-
-					String keyHex=keyData.substring(start, start+2);
-					int keyDecimal=Integer.parseInt(keyHex,16);
-					key[j][i] = keyDecimal;
 				}
 			  }
+				matState=encipher(matState,key,dec);
+			  try {
+				  writer.write(printFile(matState));
+			  }catch(IOException e){
+				  System.out.println("error");
+			  }
+				System.out.println("-----------");
+				printFunc(matState, 4, 4);
 			}
-			matState=encipher(matState,key,dec);
 			myReader.close();
+			try {
+				writer.close();
+			}catch(IOException e){
+				System.out.println("error");
+			}
 		  } catch (FileNotFoundException e) {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
 		  }
-		  
-		  System.out.println("-----------");
-		printFunc(matState, 4, 4);
+
 		//System.out.println(Integer.toHexString(90)+" "+Integer.toHexString(sbox[90]));
 	}
 
@@ -298,16 +328,13 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 		return state;
 	}
 	private static int[][] encipher(int[][]matState, int[][] key, boolean dec){
-		keyExpansion(key);
-		System.out.println("roundKeys:");
-		printFunc(roundKeys, 44, 4);
+
 		System.out.println("-------------*:");
 		printFunc(matState, 4, 4);
-
-		System.out.println("addRoundKey operation:");
-		matState = addRoundKey(matState, 0);          // returns {10, 20}
-		printFunc(matState, 4, 4);
 		if(!dec){
+			System.out.println("addRoundKey operation:");
+			matState = addRoundKey(matState, 0);          // returns {10, 20}
+			printFunc(matState, 4, 4);
 		for(int i=0; i<10; i++){
 			System.out.println("subBytes operation:");
 			matState=subBytes(matState, dec);
@@ -332,20 +359,20 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 			matState=shiftRows(matState,dec);
 			matState=subBytes(matState, dec);
 			for(int i=9; i>0; i--){
-				System.out.println("addRound encryption :");
+				System.out.println("addRound dec :");
 				matState =addRoundKey(matState, i);
 				printFunc(matState, 4, 4);
 			
-				System.out.println("mixColumns encryption:");
+				System.out.println("mixColumns dec:");
 				matState = mixColumns(matState, dec);
 				printFunc(matState, 4, 4);
 				
-				System.out.println("shiftRows operation:");
+				System.out.println("shiftRows dec:");
 				matState=shiftRows(matState,dec);
 				printFunc(matState, 4, 4);
 	
 	
-				System.out.println("subBytes operation:");
+				System.out.println("subBytes dec:");
 				matState=subBytes(matState, dec);
 				printFunc(matState, 4, 4);
 				
@@ -432,5 +459,19 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 
 		  }
 		System.out.println();
+	}
+
+	private static String printFile(int[][] matState){
+		String context = "";
+		for(int i=0;i<4;i++){
+			for(int j=0;j<4;j++){
+				String val = Integer.toHexString(matState[j][i]);
+				if (val.length() == 1) {
+					val = "0" + val;
+				}
+				context += val;
+			}
+		}
+		return context+"\n";
 	}
 }
