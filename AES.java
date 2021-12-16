@@ -149,6 +149,7 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 			String keyData = keyReader.nextLine();
 			while (myReader.hasNextLine()) {
 			  String data = myReader.nextLine();
+			  data=data.trim();
 			  for(int i=0;i<4;i++){
 				for(int j=0;j<4;j++){
 					int start=2*(4*i+j);
@@ -306,7 +307,7 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 		System.out.println("addRoundKey operation:");
 		matState = addRoundKey(matState, 0);          // returns {10, 20}
 		printFunc(matState, 4, 4);
-
+		if(!dec){
 		for(int i=0; i<10; i++){
 			System.out.println("subBytes operation:");
 			matState=subBytes(matState, dec);
@@ -325,6 +326,32 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 			System.out.println("addRound encryption :");
 			matState =addRoundKey(matState, i+1);
 			printFunc(matState, 4, 4);
+		}}
+		else{
+			matState =addRoundKey(matState, 10);
+			matState=shiftRows(matState,dec);
+			matState=subBytes(matState, dec);
+			for(int i=9; i>0; i--){
+				System.out.println("addRound encryption :");
+				matState =addRoundKey(matState, i);
+				printFunc(matState, 4, 4);
+			
+				System.out.println("mixColumns encryption:");
+				matState = mixColumns(matState, dec);
+				printFunc(matState, 4, 4);
+				
+				System.out.println("shiftRows operation:");
+				matState=shiftRows(matState,dec);
+				printFunc(matState, 4, 4);
+	
+	
+				System.out.println("subBytes operation:");
+				matState=subBytes(matState, dec);
+				printFunc(matState, 4, 4);
+				
+			}
+			matState =addRoundKey(matState, 0);
+
 		}
 		return matState;
 	}
