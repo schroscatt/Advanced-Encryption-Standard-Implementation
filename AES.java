@@ -1,5 +1,6 @@
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 public class AES {
 	public static final int[] sbox = {
@@ -129,12 +130,14 @@ public static int [][] roundKeys = new int[44][4];
 public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36};
 
 	public static void main(String [] args) {
+	
 		int [][] matState= new int[4][4];
 		int [][] key = new int[4][4];
 		boolean dec=false;
 		String keyFile=args[1];
 		String inputFile=args[2];
 		String ext = "";
+		int lineCount=0;
 		BufferedWriter writer = null;
 
 		String option=args[0];
@@ -169,9 +172,11 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 				}
 			}
 			keyReader.close();
+			long startTime = System.currentTimeMillis();
 			keyExpansion(key);
 			System.out.println("roundKeys:");
 			printFunc(roundKeys, 44, 4);
+			
 			while (myReader.hasNextLine()) {
 			  String data = myReader.nextLine();
 			  data=data.trim();
@@ -191,7 +196,15 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 			  }
 				System.out.println("-----------");
 				printFunc(matState, 4, 4);
+				lineCount++;
 			}
+			long elapsedTime = System.currentTimeMillis() - startTime;
+		  System.out.println("Execution Time : "+elapsedTime/1000.0+" seconds");
+		
+		  double mbs= (((16.0*lineCount)/1000000.0)/(elapsedTime/1000.0));
+		  System.out.print("Encryption/Decryption speed : ");
+		  System.out.printf("%.10f",mbs);
+		  System.out.println(" MB/s");
 			myReader.close();
 			try {
 				writer.close();
@@ -202,7 +215,7 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 			System.out.println("An error occurred.");
 			e.printStackTrace();
 		  }
-
+		  
 		//System.out.println(Integer.toHexString(90)+" "+Integer.toHexString(sbox[90]));
 	}
 
