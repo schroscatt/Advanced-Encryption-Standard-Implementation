@@ -168,6 +168,7 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 					key[j][i]=keyDecimal;
 				}
 			}
+			keyReader.close();
 			keyExpansion(key);
 			System.out.println("roundKeys:");
 			printFunc(roundKeys, 44, 4);
@@ -329,55 +330,63 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 	}
 	private static int[][] encipher(int[][]matState, int[][] key, boolean dec){
 
-		System.out.println("-------------*:");
+		System.out.println("Initial input:");
 		printFunc(matState, 4, 4);
 		if(!dec){
-			System.out.println("addRoundKey operation:");
+			System.out.println("addRoundKey encryption initial round:");
 			matState = addRoundKey(matState, 0);          // returns {10, 20}
 			printFunc(matState, 4, 4);
 		for(int i=0; i<10; i++){
-			System.out.println("subBytes operation:");
+			System.out.println("subBytes encryption "+(i+1)+":");
 			matState=subBytes(matState, dec);
 			printFunc(matState, 4, 4);
 
-			System.out.println("shiftRows operation:");
+			System.out.println("shiftRows encryption "+(i+1)+":");
 			matState=shiftRows(matState,dec);
 			printFunc(matState, 4, 4);
 
 			if(i!=9) {
-				System.out.println("mixColumns encryption:");
+				System.out.println("mixColumns encryption "+(i+1)+":");
 				matState = mixColumns(matState, dec);
 				printFunc(matState, 4, 4);
 			}
 
-			System.out.println("addRound encryption :");
+			System.out.println("addRound encryption "+(i+1)+":");
 			matState =addRoundKey(matState, i+1);
 			printFunc(matState, 4, 4);
 		}}
 		else{
+			System.out.println("addRoundKey decryption initial round:");
 			matState =addRoundKey(matState, 10);
+			printFunc(matState, 4, 4);
+			System.out.println("shiftRows decryption initial round:");
 			matState=shiftRows(matState,dec);
+			printFunc(matState, 4, 4);
+			System.out.println("subBytes decryption initial round:");
 			matState=subBytes(matState, dec);
+			printFunc(matState, 4, 4);
 			for(int i=9; i>0; i--){
-				System.out.println("addRound dec :");
+				System.out.println("addRoundKey decryption "+(10-i)+":");
 				matState =addRoundKey(matState, i);
 				printFunc(matState, 4, 4);
 			
-				System.out.println("mixColumns dec:");
+				System.out.println("mixColumns decryption "+(10-i)+":");
 				matState = mixColumns(matState, dec);
 				printFunc(matState, 4, 4);
 				
-				System.out.println("shiftRows dec:");
+				System.out.println("shiftRows decryption "+(10-i)+":");
 				matState=shiftRows(matState,dec);
 				printFunc(matState, 4, 4);
 	
 	
-				System.out.println("subBytes dec:");
+				System.out.println("subBytes decryption "+(10-i)+":");
 				matState=subBytes(matState, dec);
 				printFunc(matState, 4, 4);
 				
 			}
+			System.out.println("addRoundKey decryption final round:");
 			matState =addRoundKey(matState, 0);
+			
 
 		}
 		return matState;
@@ -432,10 +441,10 @@ public static final int [] rconst = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 		int [][] roundKey = getRoundKeyMatrix(index);
 		for(int i=0;i<4;i++){
 			for(int j=0;j<4;j++){
-				System.out.print(Integer.toHexString(roundKey[i][j])+" ");
+				//System.out.print(Integer.toHexString(roundKey[i][j])+" ");
 				state[i][j]=state[i][j] ^ roundKey[i][j];
 			}
-			System.out.println();
+			//System.out.println();
 		}
 		return state;
 	}
