@@ -1,6 +1,6 @@
 Advanced Encryption Standard is implemented as a group project of the Information Security course.
 
-Contributors: Gozde Unver, Sevde Sarıkaya, Ahmet Necip Gorgulu
+Contributors: [Sevde Sarıkaya](https://github.com/schroscatt), [Gozde Unver](https://github.com/GozdeUnver), [Ahmet Necip Gorgulu](https://github.com/ahmetnecipg)
 
 See the [documentation](https://github.com/schroscatt/Advanced-Encryption-Standard-Implementation/blob/master/cmpe%20494%20report.pdf) for detailed information.
 
