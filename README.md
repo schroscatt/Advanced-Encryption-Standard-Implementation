@@ -1,4 +1,4 @@
-Advanced Encryption Standart is implemented as a group project of the Information Security course.
+Advanced Encryption Standard is implemented as a group project of the Information Security course.
 
 Contributors: Gozde Unver, Sevde Sarıkaya, Ahmet Necip Gorgulu
 
