@@ -1,3 +1,9 @@
+Advanced Encryption Standart is implemented as a group project of the Information Security course.
+
+Contributors: Gozde Unver, Sevde Sarıkaya, Ahmet Necip Gorgulu
+
+See the [documentation](https://github.com/schroscatt/Advanced-Encryption-Standard-Implementation/blob/master/cmpe%20494%20report.pdf) for detailed information.
+
 # How to run the code
 You should have an inptu and a key file. An example input file is present here with the name "inputFile" and key file is "keyFile". 
 In the project directory, type these commands on the terminal:<br>
